@@ -1,0 +1,199 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+		
+	<div class="jumbotron jumbotron-fluid">
+	  <div class="container">
+	  	<div class="row">
+	  	<div class="col-md-3">
+	  		<img class="img img-thumbnail" src="{{speaker.photo.url}}">
+	  	</div>
+	  	<div class="col-md-9">
+	  		<h1 class="display-7">{{speaker.name}}</h1>
+		    <p class="lead">{{speaker.brief}}</p>	
+		    <p class="lead small">{{ speaker.available_from }} - {{speaker.available_to}}</p>
+		    {% for tag in speaker.tags.all %}
+			    <span class="badge badge-pill badge-secondary">{{tag}}</span>
+		    {% endfor %}
+		  <br><br>
+		  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+		    Ask Question
+		  </a>
+	  	</div>
+	  	</div>
+	  </div>
+	</div>
+
+	<div class="row">
+		<div class="container">
+			<p class="text-center">Ask your questions rightaway and you will be notified via email as soon as the speaker answers your question</p>
+			<div class="card">
+				<div class="collapse" id="collapseExample">
+				<div class="card card-body">
+				<!-- ADD QUESTION FORM -->
+				<form action="{% url 'askquestion' speaker.id %}" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+					  <textarea class="form-control" placeholder="Ask your question here... " rows="5" name="description"></textarea>
+					</div>
+					<div class = "form-group float-right">
+						<input class="btn" type="button" value="Cancel">
+						<input class="btn btn-primary" type="submit" name="">
+					</div>
+				</form>
+				</div>
+				</div>
+			</div>
+
+			<div class="card">
+			  <div class="card-header">
+			    About The Speaker
+			  </div>
+			  <div class="card-body">
+			    <blockquote class="blockquote mb-0">
+			      <p>{{speaker.description}}</p>
+
+			      <h3>Resources</h3>
+			    </blockquote>
+			  </div>
+			</div>
+
+			<ul class="nav nav-tabs" id="myTab" role="tablist">
+			  <li class="nav-item">
+			    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Recently Added</a>
+			  </li>
+			  <li class="nav-item">
+			    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Answered</a>
+			  </li>
+			  <li class="nav-item">
+			    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Not Answered</a>
+			  </li>
+			</ul>
+			<div class="tab-content" id="myTabContent">
+			  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+			  	
+			  	{% for question in questions %}
+				  	<div class="card">
+					  <div class="card-header">
+					    {{question.posted_by.username}}
+					  </div>
+					  <div class="card-body">
+					    <!-- <h5 class="card-title">Special title treatment</h5> -->
+					    <p class="card-text">{{question.description}}</p>
+					    <a href="#">Upvote</a>
+						  <a data-toggle="collapse" href="#question-{{question.id}}" role="button" aria-expanded="false" aria-controls="question-{{question.id}}">
+						    Reply
+						  </a>
+					  </div>
+					  <div class="card-footer text-muted">
+							<div class="collapse" id="question-{{question.id}}">
+							  <div class="card card-body">
+							    <form action="#" method="post">
+								{% csrf_token %}
+								<div class="form-group">
+								  <textarea class="form-control" rows="5" name="description"></textarea>
+								</div>
+								<div class = "form-group float-right">
+									<input class="btn" type="button" value="Cancel">
+									<input class="btn btn-primary" type="submit" name="">
+								</div>
+							</form>
+							</div>
+						</div>
+
+						<div class="card">
+						  <div class="card-body">
+						    <h5 class="card-title">Special title treatment</h5>
+						    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+						  </div>
+						</div>
+
+
+					  </div>
+					</div>
+				{% endfor %}
+
+
+			  </div>
+			  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+			  	
+			  	{% for question in questions %}
+			  		{% if question.answered %}
+					  	<div class="card">
+						  <div class="card-header">
+						    {{question.posted_by.username}}
+						  </div>
+						  <div class="card-body">
+						    <!-- <h5 class="card-title">Special title treatment</h5> -->
+						    <p class="card-text">{{question.description}}</p>
+						  </div>
+						  <div class="card-footer text-muted">
+						  <a href="#">Upvote</a>
+						  <a data-toggle="collapse" href="#question-answered-{{question.id}}" role="button" aria-expanded="false" aria-controls="question-answered-{{question.id}}">
+						    Reply
+						  </a>
+							<div class="collapse" id="question-answered-{{question.id}}">
+							  <div class="card card-body">
+							    <form action="#" method="post">
+								{% csrf_token %}
+								<div class="form-group">
+								  <textarea class="form-control" rows="5" name="description"></textarea>
+								</div>
+								<div class = "form-group float-right">
+									<input class="btn" type="button" value="Cancel">
+									<input class="btn btn-primary" type="submit" name="">
+								</div>
+							</form>
+							</div>
+						</div>
+					  </div>
+						</div>
+					{% endif %}
+				{% endfor %}
+
+			  </div>
+			  <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+			  	{% for question in questions %}
+			  		{% if not question.answered %}
+					  	<div class="card">
+						  <div class="card-header">
+						    {{question.posted_by.username}}
+						  </div>
+						  <div class="card-body">
+						    <!-- <h5 class="card-title">Special title treatment</h5> -->
+						    <p class="card-text">{{question.description}}</p>
+						  </div>
+						  <div class="card-footer text-muted">
+						  <a href="#">Upvote</a>
+						  <a data-toggle="collapse" href="#question-unanswered-{{question.id}}" role="button" aria-expanded="false" aria-controls="question-unanswered-{{question.id}}">
+						    Reply
+						  </a>
+							<div class="collapse" id="question-unanswered-{{question.id}}">
+							  <div class="card card-body">
+							    <form action="#" method="post">
+								{% csrf_token %}
+								<div class="form-group">
+								  <textarea class="form-control" rows="5" name="description"></textarea>
+								</div>
+								<div class = "form-group float-right">
+									<input class="btn" type="button" value="Cancel">
+									<input class="btn btn-primary" type="submit" name="">
+								</div>
+							</form>
+							</div>
+						</div>
+					  </div>
+						</div>
+					{% endif %}
+				{% endfor %}
+			  </div>
+			</div>
+				
+
+		</div>
+	</div>
+
+	
+
+
+{% endblock %}
